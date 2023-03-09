@@ -15,6 +15,10 @@ func (s *String) Inspect() string  { return s.Value }
 func (s *String) SetAttr(key string, value Object) Object {
 	return &Error{Message: fmt.Sprintf("AttributeError: '%s' object has no attribute  %s", s.Inspect(), key)}
 }
+func (s *String) Len() Object {
+	return &Integer{Value: int64(len(s.Value))}
+}
+
 func (s *String) GetAttr(key string) Object {
 	return &Error{Message: fmt.Sprintf("AttributeError: '%s' object has no attribute  %s", s.Inspect(), key)}
 }

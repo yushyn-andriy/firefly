@@ -26,6 +26,9 @@ func (ao *Array) Inspect() string {
 
 	return out.String()
 }
+func (ao *Array) Len() Object {
+	return &Integer{Value: int64(len(ao.Elements))}
+}
 func (ao *Array) SetAttr(key string, value Object) Object {
 	return &Error{Message: fmt.Sprintf("AttributeError: '%s' object has no attribute  %s", ao.Inspect(), key)}
 }

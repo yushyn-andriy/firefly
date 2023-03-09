@@ -259,7 +259,18 @@ func applyFunction(fn object.Object, args []object.Object) object.Object {
 	case *object.Class:
 		return fn.NewInstance(args...)
 	case *object.Builtin:
-		return fn.Fn(fn.Env, args...)
+		res := fn.Fn(fn.Env, args...)
+		switch res := res.(type) {
+		case *object.Function:
+			if len(args) != len(res.Parameters) {
+				return newError("TypeError: expected %d arguments got %d", len(args), len(res.Parameters))
+			}
+			extendedEnv := extendFunctionEnv(res, args)
+			evaluated := Eval(res.Body, extendedEnv)
+			return unwrapReturnValue(evaluated)
+		default:
+			return res
+		}
 	default:
 		return newError("not a function: %s", fn.Type())
 	}

@@ -19,6 +19,11 @@ const (
 	NULL_OBJ         = "NULL"
 )
 
+// magic methods
+const (
+	MEGIC_METHOD_LEN = "__len__"
+)
+
 var (
 	NULL  = &Null{}
 	TRUE  = &Boolean{Value: true}

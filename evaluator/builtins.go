@@ -55,9 +55,11 @@ func blen(env *object.Environment, args ...object.Object) object.Object {
 
 	switch arg := args[0].(type) {
 	case *object.String:
-		return &object.Integer{Value: int64(len(arg.Value))}
+		return arg.Len()
 	case *object.Array:
-		return &object.Integer{Value: int64(len(arg.Elements))}
+		return arg.Len()
+	case *object.Instance:
+		return arg.Len()
 	default:
 		return newError("argument to `len` not supported, got %s",
 			args[0].Type())

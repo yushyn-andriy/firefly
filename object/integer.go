@@ -11,6 +11,7 @@ func (i *Integer) Inspect() string  { return fmt.Sprintf("%d", i.Value) }
 func (i *Integer) HashKey() HashKey {
 	return HashKey{Type: i.Type(), Value: uint64(i.Value)}
 }
+
 func (i *Integer) SetAttr(key string, value Object) Object {
 	return &Error{Message: fmt.Sprintf("AttributeError: '%s' object has no attribute  %s", i.Inspect(), key)}
 }
