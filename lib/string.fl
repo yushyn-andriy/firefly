@@ -1,5 +1,3 @@
-module "string";
-
 whitespace = " \t\n\r\v\f";
 ascii_lowercase = "abcdefghijklmnopqrstuvwxyz";
 ascii_uppercase = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";

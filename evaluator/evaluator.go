@@ -2,9 +2,14 @@ package evaluator
 
 import (
 	"fmt"
+	"io"
+	"log"
+	"os"
 
 	"github.com/yushyn-andriy/firefly/ast"
+	"github.com/yushyn-andriy/firefly/lexer"
 	"github.com/yushyn-andriy/firefly/object"
+	"github.com/yushyn-andriy/firefly/parser"
 )
 
 var (
@@ -13,11 +18,62 @@ var (
 	FALSE = object.FALSE
 )
 
+func readFullFile(filename string) ([]byte, error) {
+	file, err := os.Open(filename)
+	if err != nil {
+		return nil, err
+	}
+	defer file.Close()
+
+	fileInfo, err := file.Stat()
+	if err != nil {
+		return nil, err
+	}
+
+	fileSize := fileInfo.Size()
+	buffer := make([]byte, fileSize)
+
+	_, err = file.Read(buffer)
+	if err != nil {
+		return nil, err
+	}
+
+	return buffer, nil
+}
+
+func printParseErrors(out io.Writer, errors []string) {
+	for _, msg := range errors {
+		io.WriteString(out, "\t"+msg+"\n")
+	}
+}
+
 func Eval(node ast.Node, env *object.Environment) object.Object {
 	switch node := node.(type) {
 	case *ast.Program:
 		return evalProgram(node, env)
+	case *ast.ImportLiteral:
+		name := node.Name.Value
 
+		input, err := readFullFile("./lib/" + name + ".fl")
+		if err != nil {
+			log.Fatal(err)
+		}
+		l := lexer.New(string(input))
+		p := parser.New(l)
+
+		program := p.ParseProgram()
+		if len(p.Errors()) != 0 {
+			printParseErrors(os.Stderr, p.Errors())
+		}
+
+		moduleEnv := object.NewEnvironment()
+		Eval(program, moduleEnv)
+
+		// fmt.Println(moduleEnv.Inspect())
+
+		m := object.NewModule(node.Name, moduleEnv)
+		env.Set(name, m)
+		return m
 	case *ast.SelectorExpr:
 		return evalSelectorExpression(node, env)
 

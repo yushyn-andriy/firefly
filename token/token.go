@@ -46,6 +46,7 @@ const (
 	RETURN   = "RETURN"
 	FOR      = "FOR"
 	CLASS    = "ClASS"
+	IMPORT   = "IMPORT"
 )
 
 var keywords = map[string]TokenType{
@@ -58,6 +59,7 @@ var keywords = map[string]TokenType{
 	"return": RETURN,
 	"for":    FOR,
 	"class":  CLASS,
+	"import": IMPORT,
 }
 
 type TokenType string

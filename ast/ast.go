@@ -259,6 +259,25 @@ func (bs *BlockStatement) String() string {
 	return out.String()
 }
 
+type ImportLiteral struct {
+	Token token.Token
+	Name  *StringLiteral
+}
+
+func (ms *ImportLiteral) expressionNode()      {}
+func (ms *ImportLiteral) TokenLiteral() string { return ms.Token.Literal }
+func (ms *ImportLiteral) String() string {
+	var out bytes.Buffer
+
+	out.WriteString(ms.TokenLiteral())
+	if ms.Name != nil {
+		out.WriteString(" ")
+		out.WriteString("\"" + ms.Name.String() + "\";")
+	}
+
+	return out.String()
+}
+
 type ClassLiteral struct {
 	Token token.Token // the 'class' token
 	Name  *Identifier // class name

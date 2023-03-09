@@ -74,6 +74,7 @@ func New(l *lexer.Lexer) *Parser {
 	p.registerPrefix(token.LBRACKET, p.parseArrayLiteral)
 	p.registerPrefix(token.LBRACE, p.parseHashLiteral)
 	p.registerPrefix(token.CLASS, p.parseClassLiteral)
+	p.registerPrefix(token.IMPORT, p.parseImportLiteral)
 
 	p.infixParseFns = make(map[token.TokenType]infixParseFn)
 	p.registerInfix(token.PLUS, p.parseInfixExpression)
@@ -502,6 +503,23 @@ func (p *Parser) parseBlockStatement() *ast.BlockStatement {
 	}
 
 	return block
+}
+
+func (p *Parser) parseImportLiteral() ast.Expression {
+	imp := &ast.ImportLiteral{
+		Token: p.curToken,
+	}
+	if !p.peekTokenIs(token.STRING) {
+		return nil
+	}
+
+	p.nextToken()
+
+	imp.Name = &ast.StringLiteral{p.curToken, p.curToken.Literal}
+	if p.peekTokenIs(token.SEMICOLON) {
+		p.nextToken()
+	}
+	return imp
 }
 
 func (p *Parser) parseClassLiteral() ast.Expression {

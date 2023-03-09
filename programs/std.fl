@@ -1,0 +1,9 @@
+import "string";
+import "math";
+
+
+print("digits: ");
+println(string.digits);
+println(math.PI);
+print(math.PI);
+println();

@@ -57,7 +57,8 @@ func TestKeywordsNextToken(t *testing.T) {
 	input := `
 	class A {
 
-	}
+	};
+	import "string";
 	`
 
 	tests := []struct {
@@ -68,6 +69,10 @@ func TestKeywordsNextToken(t *testing.T) {
 		{token.IDENT, "A"},
 		{token.LBRACE, "{"},
 		{token.RBRACE, "}"},
+		{token.SEMICOLON, ";"},
+		{token.IMPORT, "import"},
+		{token.STRING, "string"},
+		{token.SEMICOLON, ";"},
 	}
 
 	lexer := New(input)
