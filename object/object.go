@@ -21,7 +21,7 @@ const (
 
 // magic methods
 const (
-	MEGIC_METHOD_LEN = "__len__"
+	MAGIC_METHOD_LEN = "__len__"
 )
 
 var (

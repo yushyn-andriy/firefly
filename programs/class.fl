@@ -1,0 +1,49 @@
+class Hello {
+    fn set_name(name) {
+        self.name = name;
+    };
+
+    fn get_name() {
+        return self.name;
+    };
+
+    fn greeting(greet) {
+        return greet + " " + self.name + "!";
+    };
+
+    fn add(a, b) {
+        return a+b;
+    };
+
+    fn sum(a) {
+        if (a == 0) {
+            return 0;
+        }
+        return a+self.sum(a-1);
+    };
+
+    fn add_str(a, b) {
+        return a+b;
+    };
+
+    fn print_self() {
+        print(self);
+    };
+
+    fn __len__() {
+        return len(self.name);
+    };
+};
+
+
+h = Hello();
+
+h.set_name("Svitlana");
+println(h.get_name());
+println(h.sum(5));
+println(h.add_str("Hello ", "world"));
+nn = h.name;
+
+eprintln(len(nn));
+eprintln(len(h));
+println(builtins());

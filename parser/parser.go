@@ -13,11 +13,11 @@ import (
 const (
 	_ int = iota
 	LOWEST
-	DOT         // .
 	EQUALS      // ==
 	LESSGREATER // > or <
 	SUM         // +
 	PRODUCT     // *
+	DOT         // .
 	PREFIX      // -X or !X
 	CALL        // muFunction(X)
 	INDEX       // array[index]
@@ -73,6 +73,7 @@ func New(l *lexer.Lexer) *Parser {
 	p.registerPrefix(token.STRING, p.parseStringLiteral)
 	p.registerPrefix(token.LBRACKET, p.parseArrayLiteral)
 	p.registerPrefix(token.LBRACE, p.parseHashLiteral)
+	p.registerPrefix(token.CLASS, p.parseClassLiteral)
 
 	p.infixParseFns = make(map[token.TokenType]infixParseFn)
 	p.registerInfix(token.PLUS, p.parseInfixExpression)
@@ -501,6 +502,31 @@ func (p *Parser) parseBlockStatement() *ast.BlockStatement {
 	}
 
 	return block
+}
+
+func (p *Parser) parseClassLiteral() ast.Expression {
+	var ident *ast.Identifier
+	cls := &ast.ClassLiteral{Token: p.curToken}
+
+	if p.peekTokenIs(token.IDENT) {
+		p.nextToken()
+		ident = &ast.Identifier{Token: p.curToken, Value: p.curToken.Literal}
+	}
+
+	// if !p.expectPeek(token.LPAREN) {
+	// 	return nil
+	// }
+
+	cls.Name = ident
+	// lit.Parameters = p.parseFunctionParameters()
+
+	if !p.expectPeek(token.LBRACE) {
+		return nil
+	}
+
+	cls.Body = p.parseBlockStatement()
+
+	return cls
 }
 
 func (p *Parser) parseFunctionLiteral() ast.Expression {

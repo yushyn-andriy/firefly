@@ -45,6 +45,7 @@ const (
 	ELSE     = "ELSE"
 	RETURN   = "RETURN"
 	FOR      = "FOR"
+	CLASS    = "ClASS"
 )
 
 var keywords = map[string]TokenType{
@@ -56,6 +57,7 @@ var keywords = map[string]TokenType{
 	"else":   ELSE,
 	"return": RETURN,
 	"for":    FOR,
+	"class":  CLASS,
 }
 
 type TokenType string

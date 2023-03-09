@@ -76,6 +76,7 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 			return val
 		}
 		env.Set(node.Name.Value, val)
+
 	case *ast.Identifier:
 		return evalIdentifier(node, env)
 
@@ -89,6 +90,25 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 		}
 		return function
 
+	case *ast.ClassLiteral:
+		body := node.Body
+		name := node.Name
+		if name == nil {
+			return nil
+		}
+		cls := object.NewClass(name, body, env)
+
+		extendedEnv := extendClassEnv(cls, nil)
+		cls.Env = extendedEnv
+
+		err := evalBlockStatement(body, extendedEnv)
+		if isError(err) {
+			return err
+		}
+		if name != nil {
+			env.Set(name.String(), cls)
+		}
+		return cls
 	case *ast.ForStatement:
 		loop := &object.ForLoop{
 			Init: node.Init.(*ast.AssignStatement),
@@ -143,7 +163,14 @@ func evalSelectorExpression(node *ast.SelectorExpr, env *object.Environment) obj
 		value := Eval(node.Value, env)
 		return obj.SetAttr(node.Selector.Value, value)
 	}
-	return obj.GetAttr(node.Selector.Value)
+
+	res := obj.GetAttr(node.Selector.Value)
+	switch res := res.(type) {
+	case *object.Function:
+		res.Self = &obj
+		return res
+	}
+	return res
 }
 
 func evalHashLiteral(
@@ -290,11 +317,20 @@ func extendFunctionEnv(
 	args []object.Object,
 ) *object.Environment {
 	env := object.NewEnclosedEnvironment(fn.Env)
-
 	for paramIdx, param := range fn.Parameters {
 		env.Set(param.Value, args[paramIdx])
 	}
+	if fn.Self != nil {
+		env.Set("self", *fn.Self)
+	}
+	return env
+}
 
+func extendClassEnv(
+	cls *object.Class,
+	args []object.Object,
+) *object.Environment {
+	env := object.NewEnclosedEnvironment(cls.Env)
 	return env
 }
 

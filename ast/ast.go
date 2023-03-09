@@ -259,6 +259,36 @@ func (bs *BlockStatement) String() string {
 	return out.String()
 }
 
+type ClassLiteral struct {
+	Token token.Token // the 'class' token
+	Name  *Identifier // class name
+	// Parameters []*Identifier
+	Body *BlockStatement
+}
+
+func (cl *ClassLiteral) expressionNode()      {}
+func (cl *ClassLiteral) TokenLiteral() string { return cl.Token.Literal }
+func (cl *ClassLiteral) String() string {
+	var out bytes.Buffer
+
+	// params := []string{}
+	// for _, p := range cl.Parameters {
+	// 	params = append(params, p.String())
+	// }
+
+	out.WriteString(cl.TokenLiteral())
+	if cl.Name != nil {
+		out.WriteString(" ")
+		out.WriteString(cl.Name.String())
+	}
+	// out.WriteString("(")
+	// out.WriteString(strings.Join(params, ", "))
+	// out.WriteString(") ")
+	out.WriteString(cl.Body.String())
+
+	return out.String()
+}
+
 type FunctionLiteral struct {
 	Token      token.Token // the 'fn' token
 	Name       *Identifier
