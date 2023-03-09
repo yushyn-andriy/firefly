@@ -256,6 +256,8 @@ func applyFunction(fn object.Object, args []object.Object) object.Object {
 		extendedEnv := extendFunctionEnv(fn, args)
 		evaluated := Eval(fn.Body, extendedEnv)
 		return unwrapReturnValue(evaluated)
+	case *object.Class:
+		return fn.NewInstance(args...)
 	case *object.Builtin:
 		return fn.Fn(fn.Env, args...)
 	default:

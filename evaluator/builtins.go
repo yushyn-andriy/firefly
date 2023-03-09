@@ -18,6 +18,7 @@ func init() {
 	registerBuiltin("builtins", bbuiltins)
 	registerBuiltin("getattr", bgetattr)
 	registerBuiltin("setattr", bsetattr)
+	registerBuiltin("nclass", bnclass)
 }
 
 func registerBuiltin(
@@ -28,6 +29,23 @@ func registerBuiltin(
 }
 
 var builtins = map[string]*object.Builtin{}
+
+func bnclass(env *object.Environment, args ...object.Object) object.Object {
+	if len(args) != 1 {
+		return newError("wrong number of arguments. got=%d, want=1",
+			len(args))
+	}
+	var name string
+	switch arg := args[0].(type) {
+	case *object.String:
+		name = arg.Value
+	default:
+		return newError("argument to `nclass` not supported, got %s",
+			args[0].Type())
+	}
+
+	return object.NewClass(name)
+}
 
 func blen(env *object.Environment, args ...object.Object) object.Object {
 	if len(args) != 1 {

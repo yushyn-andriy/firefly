@@ -3,6 +3,8 @@ package object
 type ObjectType string
 
 const (
+	CLASS            = "CLASS"
+	INSTANCE         = "INSTANCE"
 	INTEGER_OBJ      = "INTEGER"
 	BOOLEAN_OBJ      = "BOOLEAN"
 	RETURN_VALUE_OBJ = "RETURN_VALUE"
