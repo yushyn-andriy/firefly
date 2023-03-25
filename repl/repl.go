@@ -20,7 +20,6 @@ const PROMPT = ">>> "
 
 func Start(in io.Reader, out io.Writer, conf config.Config) {
 	env := object.NewEnvironment()
-
 	if conf.Mode == config.INTERACTIVE {
 		scanner := bufio.NewScanner(in)
 		for {
@@ -31,7 +30,6 @@ func Start(in io.Reader, out io.Writer, conf config.Config) {
 			}
 
 			line := scanner.Text()
-
 			l := lexer.New(line)
 			p := parser.New(l)
 

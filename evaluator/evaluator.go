@@ -54,6 +54,7 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 	case *ast.ImportLiteral:
 		name := node.Name.Value
 
+		// find better way to do this
 		input, err := readFullFile("./lib/" + name + ".fl")
 		if err != nil {
 			log.Fatal(err)
@@ -186,7 +187,8 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 		return applyFunction(function, args)
 
 	case *ast.StringLiteral:
-		return &object.String{Value: node.Value}
+		return object.NewString(node.Value)
+		// return &object.String{Value: node.Value}
 
 	case *ast.ArrayLiteral:
 		elements := evalExpressions(node.Elements, env)
@@ -223,7 +225,7 @@ func evalSelectorExpression(node *ast.SelectorExpr, env *object.Environment) obj
 	res := obj.GetAttr(node.Selector.Value)
 	switch res := res.(type) {
 	case *object.Function:
-		res.Self = &obj
+		res.Self = obj
 		return res
 	}
 	return res
@@ -340,7 +342,15 @@ func applyFunction(fn object.Object, args []object.Object) object.Object {
 		evaluated := Eval(fn.Body, extendedEnv)
 		return unwrapReturnValue(evaluated)
 	case *object.Class:
-		return fn.NewInstance(args...)
+		obj := fn.NewInstance(args...)
+		init := obj.GetAttr(object.MAGIC_METHOD_INIT)
+		switch r := init.(type) {
+		case *object.Error:
+		case *object.Function:
+			r.Self = obj
+			applyFunction(r, args)
+		}
+		return obj
 	case *object.Builtin:
 		res := fn.Fn(fn.Env, args...)
 		switch res := res.(type) {
@@ -377,7 +387,7 @@ func extendFunctionEnv(
 		env.Set(param.Value, args[paramIdx])
 	}
 	if fn.Self != nil {
-		env.Set("self", *fn.Self)
+		env.Set("self", fn.Self)
 	}
 	return env
 }

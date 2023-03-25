@@ -21,7 +21,16 @@ const (
 
 // magic methods
 const (
-	MAGIC_METHOD_LEN = "__len__"
+	MAGIC_METHOD_INIT = "__init__"
+	MAGIC_METHOD_LEN  = "__len__"
+	MAGIC_METHOD_REPR = "__repr__"
+	MAGIC_METHOD_STR  = "__str__"
+)
+
+// magic attributes
+const (
+	MAGIC_ATTR_NAME = "__name__"
+	MAGIC_ATTR_DOC  = "__doc__"
 )
 
 var (

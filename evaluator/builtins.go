@@ -3,12 +3,28 @@ package evaluator
 import (
 	"bytes"
 	"fmt"
+	"io"
 	"os"
 
 	"github.com/yushyn-andriy/firefly/ast"
 	"github.com/yushyn-andriy/firefly/object"
 	"github.com/yushyn-andriy/firefly/token"
 )
+
+var (
+	stdout io.Writer
+	stderr io.Writer
+)
+
+func init() {
+	stdout = os.Stdout
+	stderr = os.Stderr
+}
+
+func SetStd(sout, serr io.Writer) {
+	stdout = sout
+	stderr = serr
+}
 
 func init() {
 	registerBuiltin("len", blen)
@@ -25,7 +41,7 @@ func init() {
 	registerBuiltin("builtins", bbuiltins)
 	registerBuiltin("getattr", bgetattr)
 	registerBuiltin("setattr", bsetattr)
-	registerBuiltin("nclass", bnclass)
+	registerBuiltin("new", bNewClass)
 }
 
 func registerBuiltin(
@@ -37,7 +53,7 @@ func registerBuiltin(
 
 var builtins = map[string]*object.Builtin{}
 
-func bnclass(env *object.Environment, args ...object.Object) object.Object {
+func bNewClass(env *object.Environment, args ...object.Object) object.Object {
 	if len(args) != 1 {
 		return newError("wrong number of arguments. got=%d, want=1",
 			len(args))
@@ -72,7 +88,7 @@ func blen(env *object.Environment, args ...object.Object) object.Object {
 		r := arg.Len()
 		switch r := r.(type) {
 		case *object.Function:
-			r.Self = &args[0]
+			r.Self = args[0]
 			return applyFunction(r, args)
 		}
 		return arg.Len()
@@ -166,7 +182,7 @@ func bprint(env *object.Environment, args ...object.Object) object.Object {
 		}
 		out.WriteString(" ")
 	}
-	fmt.Print(out.String())
+	fmt.Fprint(stdout, out.String())
 	return NULL
 }
 
@@ -180,7 +196,7 @@ func bprintln(env *object.Environment, args ...object.Object) object.Object {
 		out.WriteString(" ")
 	}
 	out.WriteString("\n")
-	fmt.Print(out.String())
+	fmt.Fprint(stdout, out.String())
 	return NULL
 }
 
@@ -193,7 +209,7 @@ func beprint(env *object.Environment, args ...object.Object) object.Object {
 		}
 		out.WriteString(" ")
 	}
-	fmt.Fprint(os.Stderr, out.String())
+	fmt.Fprint(stderr, out.String())
 	return NULL
 }
 
@@ -207,7 +223,7 @@ func beprintln(env *object.Environment, args ...object.Object) object.Object {
 		out.WriteString(" ")
 	}
 	out.WriteString("\n")
-	fmt.Fprint(os.Stderr, out.String())
+	fmt.Fprint(stderr, out.String())
 	return NULL
 }
 

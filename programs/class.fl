@@ -1,4 +1,9 @@
 class Hello {
+    fn __init__(arg) {
+        self.custom = "asd";
+        self.arg = arg;
+    };
+
     fn set_name(name) {
         self.name = name;
     };
@@ -36,7 +41,7 @@ class Hello {
 };
 
 
-h = Hello();
+h = Hello("argument1");
 
 h.set_name("Svitlana");
 println(h.get_name());
@@ -47,3 +52,6 @@ nn = h.name;
 eprintln(len(nn));
 eprintln(len(h));
 println(builtins());
+println(h.custom);
+println("arg:", h.arg);
+println("name:", h.__name__);

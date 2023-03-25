@@ -10,6 +10,13 @@ type String struct {
 	Value string
 }
 
+func NewString(value string) *String {
+	s := new(String)
+	s.Value = value
+	s.dict = make(map[string]Object)
+	return s
+}
+
 func (s *String) Type() ObjectType { return STRING_OBJ }
 func (s *String) Inspect() string  { return s.Value }
 func (s *String) SetAttr(key string, value Object) Object {

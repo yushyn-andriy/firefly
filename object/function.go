@@ -14,7 +14,7 @@ type Function struct {
 	Parameters []*ast.Identifier
 	Body       *ast.BlockStatement
 	Env        *Environment
-	Self       *Object
+	Self       Object
 }
 
 func NewFunction(name *ast.Identifier, params []*ast.Identifier, env *Environment, body *ast.BlockStatement) *Function {

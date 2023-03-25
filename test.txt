@@ -1,4 +1,0 @@
-Svitlana
-15
-Hello world
-[print, println, eprint, exit, locals, builtins, len, first, nclass, getattr, setattr, eprintln, type]

@@ -26,7 +26,16 @@ func NewClass(
 	cls.Env = env
 	cls.dict = make(map[string]Object)
 
+	cls.initialize()
+
 	return cls
+}
+
+func (c *Class) initialize() {
+	// initialize attributes
+	c.Env.Set(MAGIC_ATTR_NAME, NewString(c.Name.Value))
+	// TODO: add doc string parsing
+	c.Env.Set(MAGIC_ATTR_DOC, NewString(""))
 }
 
 func (c *Class) Type() ObjectType {
