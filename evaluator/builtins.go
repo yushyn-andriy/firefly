@@ -31,9 +31,13 @@ func init() {
 	registerBuiltin("first", bfirst)
 
 	registerBuiltin("print", bprint)
+	registerBuiltin("utskrift", bprint)
+
 	registerBuiltin("println", bprintln)
+	registerBuiltin("utskriftln", bprintln)
+
 	registerBuiltin("eprint", beprint)
-	registerBuiltin("eprintln", beprintln)
+	registerBuiltin("futskrift", beprintln)
 
 	registerBuiltin("exit", bexit)
 	registerBuiltin("locals", blocals)
