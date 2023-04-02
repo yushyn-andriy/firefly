@@ -153,7 +153,7 @@ func TestNextToken(t *testing.T) {
 fn add(a, b) {
     a + b;
 };
-
+let a2
 
 
 	`
@@ -289,6 +289,9 @@ fn add(a, b) {
 		{token.SEMICOLON, ";"},
 		{token.RBRACE, "}"},
 		{token.SEMICOLON, ";"},
+
+		{token.LET, "let"},
+		{token.IDENT, "a2"},
 
 		{token.EOF, ""},
 	}

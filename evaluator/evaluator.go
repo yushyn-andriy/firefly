@@ -209,8 +209,20 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 		if isError(index) {
 			return index
 		}
-		return evalIndexExpression(left, index)
 
+		// this means that this is assign statement
+		if node.Right != nil {
+			right := Eval(node.Right, env)
+			if isError(right) {
+				return right
+			}
+			obj := evalAssignIndexStatement(left, right, index)
+			if isError(obj) {
+				return obj
+			}
+		} else {
+			return evalIndexExpression(left, index)
+		}
 	case *ast.HashLiteral:
 		return evalHashLiteral(node, env)
 	}
@@ -274,6 +286,39 @@ func evalIndexExpression(left, index object.Object) object.Object {
 	}
 }
 
+func evalAssignIndexStatement(left, right, index object.Object) object.Object {
+	switch {
+	case left.Type() == object.ARRAY_OBJ && index.Type() == object.INTEGER_OBJ:
+		return evalAssignArrayIndexStatement(left, right, index)
+	case left.Type() == object.HASH_OBJ:
+		return evalAssignHashIndexStatement(left, right, index)
+	default:
+		return newError("index operator not supported: %s", left.Type())
+	}
+}
+
+func evalAssignHashIndexStatement(hash, value, index object.Object) object.Object {
+	hashObject := hash.(*object.Hash)
+	key, ok := index.(object.Hashable)
+	if !ok {
+		return newError("unusable as hash key: %s", index.Type())
+	}
+	hashObject.Pairs[key.HashKey()] = object.HashPair{Key: index, Value: value}
+	return NULL
+}
+
+func evalAssignArrayIndexStatement(array, value, index object.Object) object.Object {
+	arrayObject := array.(*object.Array)
+	idx := index.(*object.Integer).Value
+	max := int64(len(arrayObject.Elements)) - 1
+
+	if idx < 0 || idx > max {
+		return NULL
+	}
+	arrayObject.Elements[idx] = value
+	return NULL
+}
+
 func evalHashIndexExpression(hash, index object.Object) object.Object {
 	hashObject := hash.(*object.Hash)
 	key, ok := index.(object.Hashable)
@@ -282,7 +327,7 @@ func evalHashIndexExpression(hash, index object.Object) object.Object {
 	}
 	pair, ok := hashObject.Pairs[key.HashKey()]
 	if !ok {
-		return NULL
+		return newError("key does not exists: %s", index.Inspect())
 	}
 	return pair.Value
 }
@@ -293,7 +338,7 @@ func evalArrayIndexExpression(array, index object.Object) object.Object {
 	max := int64(len(arrayObject.Elements)) - 1
 
 	if idx < 0 || idx > max {
-		return NULL
+		return newError("index out of range: %d", idx)
 	}
 
 	return arrayObject.Elements[idx]

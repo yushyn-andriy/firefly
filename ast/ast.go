@@ -405,6 +405,7 @@ func (al *ArrayLiteral) String() string {
 type IndexExpression struct {
 	Token token.Token // The [ token
 	Left  Expression
+	Right Expression
 	Index Expression
 }
 
