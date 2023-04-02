@@ -43,15 +43,17 @@ class Hello {
 
 h = Hello("argument1");
 
+
 h.set_name("Svitlana");
 println(h.get_name());
 println(h.sum(5));
 println(h.add_str("Hello ", "world"));
 nn = h.name;
+# println(builtins());
+# println(h.custom);
+# println("arg:", h.arg);
 
-eprintln(len(nn));
-eprintln(len(h));
-println(builtins());
-println(h.custom);
-println("arg:", h.arg);
+
+
 println("name:", h.__name__);
+utskriftln("name:", h.__name__);
