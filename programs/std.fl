@@ -1,9 +1,11 @@
 import "string";
 import "math";
-
+import "phys";
 
 print("digits: ");
 println(string.digits);
-println(math.PI);
-print(math.PI);
-println();
+println("PI:", math.PI);
+println("LIGHT_SPEED:", phys.LIGHT_SPEED);
+println("PLANK:", phys.PLANK);
+println("BOLTZMANN:", phys.BOLTZMANN);
+println("G:", phys.G);

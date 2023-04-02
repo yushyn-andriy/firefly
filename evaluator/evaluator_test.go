@@ -1,12 +1,15 @@
 package evaluator
 
 import (
+	"math"
 	"testing"
 
 	"github.com/yushyn-andriy/firefly/lexer"
 	"github.com/yushyn-andriy/firefly/object"
 	"github.com/yushyn-andriy/firefly/parser"
 )
+
+const float64EqualityThreshold = 1e-9
 
 func TestEvalIntegerExpression(t *testing.T) {
 	tests := []struct {
@@ -33,6 +36,35 @@ func TestEvalIntegerExpression(t *testing.T) {
 	for _, tt := range tests {
 		evaluated := testEval(tt.input)
 		testIntegerObject(t, evaluated, tt.expected)
+	}
+}
+
+func TestEvalFloatExpression(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected float64
+	}{
+		{"3.1415", 3.1415},
+		{"-3.1415", -3.1415},
+		{"3.2415 + 0.1", 3.3415},
+		{"3.2415 - 0.01", 3.2315},
+		{"0.1 * 0.1", 0.01},
+		{"10.0 / 0.1", 100.0},
+
+		{"-50.0 + 100.1 + -50.0", 0.1},
+		{"5.0 * 2.0 + 10.0", 20.0},
+		{"5.0 + 2.0 * 10.0", 25.0},
+		{"20.0 + 2.0 * -10.0", 0.0},
+		{"50.0 / 2.0 * 2.0 + 10.0", 60.0},
+		{"2.0 * (5.0 + 10.0)", 30.0},
+		{"3.0 * 3.0 * 3.0 + 10.0", 37.0},
+		{"3.0 * (3.0 * 3.0) + 10.0", 37.0},
+		{"(5.0 + 10.0 * 2.0 + 15.0 / 3.0) * 2.0 + -10.0", 50.0},
+	}
+
+	for _, tt := range tests {
+		evaluated := testEval(tt.input)
+		testFloatObject(t, evaluated, tt.expected)
 	}
 }
 
@@ -73,6 +105,17 @@ func TestEvalBooleanExpression(t *testing.T) {
 		{"(1 < 2) == false", false},
 		{"(1 > 2) == true", false},
 		{"(1 > 2) == false", true},
+
+		{"3.1415 == 3.1415", true},
+		{"3.1415 == 3.1416", false},
+		{"1.5 < 2.1", true},
+		{"1.3 > 2.4", false},
+		{"1.0 < 1.0", false},
+		{"1.0 > 1.0", false},
+		{"1.1 == 1.1", true},
+		{"1.1 != 1.1", false},
+		{"1.1 == 2.2", false},
+		{"1.1 != 2.1", true},
 	}
 
 	for _, tt := range tests {
@@ -98,6 +141,21 @@ func testIntegerObject(t *testing.T, obj object.Object, expected int64) bool {
 	}
 	if result.Value != expected {
 		t.Errorf("object has wrong value. got=%d, want=%d",
+			result.Value, expected)
+		return false
+	}
+	return true
+}
+
+func testFloatObject(t *testing.T, obj object.Object, expected float64) bool {
+	result, ok := obj.(*object.Float)
+	if !ok {
+		t.Errorf("object is not Float. got=%T (%+v)", obj, obj)
+		return false
+	}
+
+	if !almostEqual(result.Value, expected) {
+		t.Errorf("object has wrong value. got=%v, want=%v",
 			result.Value, expected)
 		return false
 	}
@@ -563,4 +621,8 @@ func TestHashIndexExpressions(t *testing.T) {
 			testNullObject(t, evaluated)
 		}
 	}
+}
+
+func almostEqual(a, b float64) bool {
+	return math.Abs(a-b) <= float64EqualityThreshold
 }

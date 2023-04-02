@@ -13,7 +13,7 @@ server: wasm
 	cd  $(SERVER_PATH) && go run ./cmd/server/main.go
 
 
-update_page:
+update_page: wasm
 	cd  $(SERVER_PATH) && git add . && git commit -m "update" && git push origin gh-pages
 
 

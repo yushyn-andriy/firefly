@@ -6,6 +6,7 @@ const (
 	CLASS            = "CLASS"
 	INSTANCE         = "INSTANCE"
 	INTEGER_OBJ      = "INTEGER"
+	FLOAT_OBJ        = "FLOAT"
 	BOOLEAN_OBJ      = "BOOLEAN"
 	RETURN_VALUE_OBJ = "RETURN_VALUE"
 	ERROR_OBJ        = "ERROR"

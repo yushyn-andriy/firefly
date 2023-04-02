@@ -53,6 +53,40 @@ func TestIdentifiersNextToken(t *testing.T) {
 
 }
 
+func TestNumbersNextToken(t *testing.T) {
+	input := `
+	123
+	123.345
+	3.1415
+	3.
+	3.d
+	`
+
+	tests := []struct {
+		expectedType    token.TokenType
+		expectedLiteral string
+	}{
+		{token.INT, "123"},
+		{token.FLOAT, "123.345"},
+		{token.FLOAT, "3.1415"},
+		{token.ILLEGAL, "\n"},
+		{token.ILLEGAL, "d"},
+	}
+
+	lexer := New(input)
+	for i, tt := range tests {
+		tok := lexer.NextToken()
+		if tok.Type != tt.expectedType {
+			t.Fatalf("tests[%d] - tokentype wrong. expected=%q, got=%q",
+				i, tt.expectedType, tok.Type)
+		}
+		if tok.Literal != tt.expectedLiteral {
+			t.Fatalf("tests[%d] - literal wrong. expected=%q, got=%q",
+				i, tt.expectedLiteral, tok.Literal)
+		}
+	}
+
+}
 func TestKeywordsNextToken(t *testing.T) {
 	input := `
 	class A {

@@ -1,0 +1,15 @@
+# Fundamental phys constants
+
+
+# The speed of light in a vacuum: 299792458.0 meters per second
+LIGHT_SPEED=299792458.0;
+
+#Planck's constant: 0.000000000000000000000662607015 joule-seconds
+PLANK=0.000000000000000000000662607015;
+
+
+#Boltzmann's constant: 0.00000000000000000001380649 joules per kelvin
+BOLTZMANN=0.00000000000000000001380649;
+
+#The gravitational constant: 0.000000000066743 cubic meters per kilogram per second squared
+G=0.000000000066743;

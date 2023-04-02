@@ -131,6 +131,11 @@ type IntegerLiteral struct {
 	Value int64
 }
 
+type FloatLiteral struct {
+	Token token.Token
+	Value float64
+}
+
 type SelectorExpr struct {
 	Token      token.Token // the first token of the expression
 	Expression Expression
@@ -156,6 +161,10 @@ func (se *SelectorExpr) String() string {
 func (il *IntegerLiteral) expressionNode()      {}
 func (il *IntegerLiteral) TokenLiteral() string { return il.Token.Literal }
 func (il *IntegerLiteral) String() string       { return il.Token.Literal }
+
+func (fl *FloatLiteral) expressionNode()      {}
+func (fl *FloatLiteral) TokenLiteral() string { return fl.Token.Literal }
+func (fl *FloatLiteral) String() string       { return fl.Token.Literal }
 
 func (rs *ExpressionStatement) statementNode() {}
 func (rs *ExpressionStatement) TokenLiteral() string {

@@ -117,6 +117,9 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 	case *ast.IntegerLiteral:
 		return &object.Integer{Value: node.Value}
 
+	case *ast.FloatLiteral:
+		return &object.Float{Value: node.Value}
+
 	case *ast.Boolean:
 		return nativeBoolToBooleanObject(node.Value)
 
@@ -480,6 +483,8 @@ func evalInfixExpression(
 	switch {
 	case left.Type() == object.INTEGER_OBJ && right.Type() == object.INTEGER_OBJ:
 		return evalIntegerInfixExpression(operator, left, right)
+	case left.Type() == object.FLOAT_OBJ && right.Type() == object.FLOAT_OBJ:
+		return evalFloatInfixExpression(operator, left, right)
 	case operator == "==":
 		return nativeBoolToBooleanObject(left == right)
 	case operator == "!=":
@@ -539,6 +544,36 @@ func evalIntegerInfixExpression(
 	}
 }
 
+func evalFloatInfixExpression(
+	operator string,
+	left, right object.Object,
+) object.Object {
+	leftVal := left.(*object.Float).Value
+	rightVal := right.(*object.Float).Value
+
+	switch operator {
+	case "+":
+		return &object.Float{Value: leftVal + rightVal}
+	case "-":
+		return &object.Float{Value: leftVal - rightVal}
+	case "*":
+		return &object.Float{Value: leftVal * rightVal}
+	case "/":
+		return &object.Float{Value: leftVal / rightVal}
+	case "<":
+		return nativeBoolToBooleanObject(leftVal < rightVal)
+	case ">":
+		return nativeBoolToBooleanObject(leftVal > rightVal)
+	case "==":
+		return nativeBoolToBooleanObject(leftVal == rightVal)
+	case "!=":
+		return nativeBoolToBooleanObject(leftVal != rightVal)
+	default:
+		return newError("unknown operator: %s %s %s",
+			left.Type(), operator, right.Type())
+	}
+}
+
 func evalPrefixExpression(operator string, right object.Object) object.Object {
 	switch operator {
 	case "!":
@@ -551,12 +586,14 @@ func evalPrefixExpression(operator string, right object.Object) object.Object {
 }
 
 func evalMinusPrefixOperatorExpression(right object.Object) object.Object {
-	if right.Type() != object.INTEGER_OBJ {
+	switch obj := right.(type) {
+	case *object.Integer:
+		return &object.Integer{Value: -obj.Value}
+	case *object.Float:
+		return &object.Float{Value: -obj.Value}
+	default:
 		return newError("unknown operator: -%s", right.Type())
 	}
-
-	value := right.(*object.Integer).Value
-	return &object.Integer{Value: -value}
 }
 
 func evalBangOperatorExpression(right object.Object) object.Object {

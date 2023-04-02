@@ -1,6 +1,8 @@
 package lexer
 
 import (
+	"fmt"
+
 	"github.com/yushyn-andriy/firefly/token"
 )
 
@@ -98,8 +100,20 @@ func (l *Lexer) NextToken() token.Token {
 			tok.Type = token.LookupIdent(tok.Literal)
 			return tok
 		} else if isDigit(l.ch) {
-			tok.Type = token.INT
-			tok.Literal = l.readNumber()
+			intPart := l.readNumber()
+			if l.ch == '.' {
+				l.readChar()
+				if isDigit(l.ch) {
+					tok.Type = token.FLOAT
+					fracPart := l.readNumber()
+					tok.Literal = fmt.Sprintf("%s.%s", intPart, fracPart)
+				} else {
+					tok = newToken(token.ILLEGAL, l.ch)
+				}
+			} else {
+				tok.Type = token.INT
+				tok.Literal = intPart
+			}
 			return tok
 		} else {
 			tok = newToken(token.ILLEGAL, l.ch)

@@ -200,6 +200,34 @@ func TestIntegerLiteralExpression(t *testing.T) {
 	}
 }
 
+func TestFloatLiteralExpression(t *testing.T) {
+	input := "3.1415;"
+
+	program := createParseProgram(input, t)
+
+	if len(program.Statements) != 1 {
+		t.Fatalf("program has not enough statements. got=%d", len(program.Statements))
+	}
+
+	stmt, ok := program.Statements[0].(*ast.ExpressionStatement)
+	if !ok {
+		t.Fatalf("program.Statements[0] is not %T. got=%T", &ast.ExpressionStatement{}, program.Statements[0])
+	}
+
+	literal, ok := stmt.Expression.(*ast.FloatLiteral)
+	if !ok {
+		t.Fatalf("exp not %T. got=%T", &ast.FloatLiteral{}, stmt.Expression)
+	}
+
+	if literal.Value != 3.1415 {
+		t.Errorf("literal.Value not %.f. got=%.f", 3.1415, literal.Value)
+	}
+
+	if literal.TokenLiteral() != "3.1415" {
+		t.Errorf("literal.TokenLiteral not %s. got=%s", "3.1415", literal.TokenLiteral())
+	}
+}
+
 func TestParsingPrefixExpressions(t *testing.T) {
 	prefixTests := []struct {
 		input    string
@@ -252,6 +280,16 @@ func TestParsingInfixExpressions(t *testing.T) {
 		{"5 < 5;", 5, "<", 5},
 		{"5 == 5;", 5, "==", 5},
 		{"5 != 5;", 5, "!=", 5},
+
+		{"5.0 + 5.0;", 5.0, "+", 5.0},
+		{"5.0 + 5.0;", 5.0, "+", 5.0},
+		{"5.0 + 5.0;", 5.0, "+", 5.0},
+		{"5.0 + 5.0;", 5.0, "+", 5.0},
+		{"5.0 + 5.0;", 5.0, "+", 5.0},
+		{"5.0 + 5.0;", 5.0, "+", 5.0},
+		{"5.0 + 5.0;", 5.0, "+", 5.0},
+		{"5.0 + 5.0;", 5.0, "+", 5.0},
+
 		{"true == true", true, "==", true},
 		{"true != false", true, "!=", false},
 		{"false == false", false, "==", false},
@@ -443,6 +481,21 @@ func testIntegerLiteral(t *testing.T, il ast.Expression, value int64) bool {
 	return true
 }
 
+func testFloatLiteral(t *testing.T, il ast.Expression, value float64) bool {
+	v, ok := il.(*ast.FloatLiteral)
+	if !ok {
+		t.Errorf("il not %T. got=%T", &ast.FloatLiteral{}, il)
+		return false
+	}
+
+	if v.Value != value {
+		t.Errorf("f.Value not %.f. got=%.f", value, v.Value)
+		return false
+	}
+
+	return true
+}
+
 func testIdentifier(t *testing.T, exp ast.Expression, value string) bool {
 	identifier, ok := exp.(*ast.Identifier)
 	if !ok {
@@ -489,10 +542,13 @@ func testLiteralExpression(t *testing.T, exp ast.Expression, expected interface{
 		return testIntegerLiteral(t, exp, int64(v))
 	case int64:
 		return testIntegerLiteral(t, exp, v)
+	case float64:
+		return testFloatLiteral(t, exp, v)
 	case string:
 		return testIdentifier(t, exp, v)
 	case bool:
 		return testBooleanLiteral(t, exp, v)
+
 	}
 	t.Errorf("type of exp not handled. got=%T", exp)
 	return false

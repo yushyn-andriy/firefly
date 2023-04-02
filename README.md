@@ -1,5 +1,4 @@
-# The Elephant Programming Language
+# The Firefly Programming Language
 
-Elephant is an open source, iterpreted high-level general-purpose programming language, that makes it easy to build simple,
+Firefly is an open source, iterpreted high-level general-purpose programming language, that makes it easy to build simple,
 reliable, and efficient software with.
-
