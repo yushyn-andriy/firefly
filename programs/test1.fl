@@ -18,5 +18,18 @@ fn div(a, b) {
 k = 6;
 l = 3;
 result = div (k, l);
-print ("divide: ", result);
+println("divide: ", result);
 
+
+
+fn sqrt(x) {
+    if (x < 0.0) {
+        return -1;
+    }
+    println("after");
+    return pow(x, 0.5);
+}
+
+
+println(sqrt(9.0));
+println(sqrt(-9.0));

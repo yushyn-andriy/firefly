@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"io"
+	"math"
 	"os"
 
 	"github.com/yushyn-andriy/firefly/ast"
@@ -46,6 +47,9 @@ func init() {
 	registerBuiltin("getattr", bgetattr)
 	registerBuiltin("setattr", bsetattr)
 	registerBuiltin("new", bNewClass)
+
+	registerBuiltin("pow", bPow)
+
 }
 
 func registerBuiltin(
@@ -75,6 +79,25 @@ func bNewClass(env *object.Environment, args ...object.Object) object.Object {
 		Type:    token.IDENT,
 		Literal: name,
 	}, Value: name}, nil, env)
+}
+
+func bPow(env *object.Environment, args ...object.Object) object.Object {
+	if len(args) != 2 {
+		return newError("wrong number of arguments. got=%d, want=2",
+			len(args))
+	}
+
+	a := args[0]
+	b := args[1]
+	if a.Type() != object.FLOAT_OBJ || b.Type() != object.FLOAT_OBJ {
+		return newError("both arguments must be FLOAT  type got %s, %s",
+			a.Type(), b.Type())
+	}
+
+	x := a.(*object.Float)
+	y := b.(*object.Float)
+
+	return &object.Float{Value: math.Pow(x.Value, y.Value)}
 }
 
 func blen(env *object.Environment, args ...object.Object) object.Object {
