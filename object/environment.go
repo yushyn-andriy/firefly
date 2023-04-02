@@ -46,9 +46,26 @@ func (e *Environment) Get(name string) (Object, bool) {
 }
 
 func (e *Environment) Set(name string, val Object) Object {
-	e.store[name] = val
+	// e.store[name] = val
+
+	curr := e
+	var found bool
+	for curr != nil {
+		if _, ok := curr.store[name]; ok {
+			found = true
+			break
+		}
+		curr = curr.outer
+	}
+	if found {
+		curr.store[name] = val
+	} else {
+		e.store[name] = val
+	}
+
 	return val
 }
+
 func (e *Environment) SetAttr(key string, value Object) Object {
 	return &Error{Message: fmt.Sprintf("AttributeError: '%s' object has no attribute  %s", e.Inspect(), key)}
 }
