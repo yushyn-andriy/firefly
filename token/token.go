@@ -48,6 +48,8 @@ const (
 	FOR      = "FOR"
 	CLASS    = "ClASS"
 	IMPORT   = "IMPORT"
+	OR       = "OR"
+	AND      = "AND"
 )
 
 var keywords = map[string]TokenType{
@@ -61,6 +63,8 @@ var keywords = map[string]TokenType{
 	"for":    FOR,
 	"class":  CLASS,
 	"import": IMPORT,
+	"or":     OR,
+	"and":    AND,
 }
 
 type TokenType string

@@ -47,6 +47,7 @@ func init() {
 	registerBuiltin("getattr", bgetattr)
 	registerBuiltin("setattr", bsetattr)
 	registerBuiltin("new", bNewClass)
+	registerBuiltin("help", bhelp)
 
 	registerBuiltin("pow", bPow)
 
@@ -126,6 +127,23 @@ func blen(env *object.Environment, args ...object.Object) object.Object {
 
 }
 
+func bhelp(env *object.Environment, args ...object.Object) object.Object {
+	if len(args) != 1 {
+		return newError("wrong number of arguments. got=%d, want=1",
+			len(args))
+	}
+
+	switch arg := args[0].(type) {
+	case *object.Builtin:
+		return object.NewString(arg.Doc)
+	case *object.Array:
+		return arg.Len()
+	default:
+		return arg.GetAttr("__doc__")
+	}
+
+}
+
 func bsetattr(env *object.Environment, args ...object.Object) object.Object {
 	if len(args) != 3 {
 		return newError("wrong number of arguments. got=%d, want=3",
@@ -161,7 +179,7 @@ func bgetattr(env *object.Environment, args ...object.Object) object.Object {
 func bbuiltins(env *object.Environment, args ...object.Object) object.Object {
 	arr := object.Array{}
 	for k, _ := range builtins {
-		arr.Elements = append(arr.Elements, &object.String{Value: k})
+		arr.Elements = append(arr.Elements, object.NewString(k))
 	}
 	return &arr
 }

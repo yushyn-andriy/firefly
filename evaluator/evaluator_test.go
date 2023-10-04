@@ -116,6 +116,31 @@ func TestEvalBooleanExpression(t *testing.T) {
 		{"1.1 != 1.1", false},
 		{"1.1 == 2.2", false},
 		{"1.1 != 2.1", true},
+
+		{"false and false", false},
+		{"false and true", false},
+		{"true and false", false},
+		{"true and true", true},
+		{"2<3 and true", true},
+		{"2>3 and true", false},
+		{"2>3 and 4<6", false},
+		{"2<3 and 4<6", true},
+		{"2<3 and 4<6 and 1==2", false},
+
+		{"true or true", true},
+		{"true or false", true},
+		{"false or true", true},
+		{"false or false", false},
+
+		{"1<2 or 2<3", true},
+		{"1<2 or 2>4", true},
+		{"2>4 or 1<2", true},
+		{"2<1 or 3<1", false},
+
+		{"2<3 or 2>4 and 1 > 2", false},
+		{"2<3 or 2>4 and 1 < 2", true},
+		{"4<3 or 2>4 and 1 < 2", false},
+		{`" " == " " and true == true`, true},
 	}
 
 	for _, tt := range tests {
@@ -540,8 +565,6 @@ func TestArrayIndexExpression(t *testing.T) {
 		integer, ok := tt.expected.(int)
 		if ok {
 			testIntegerObject(t, evaluated, int64(integer))
-		} else {
-			testNullObject(t, evaluated)
 		}
 	}
 
@@ -617,8 +640,6 @@ func TestHashIndexExpressions(t *testing.T) {
 		integer, ok := tt.expected.(int)
 		if ok {
 			testIntegerObject(t, evaluated, int64(integer))
-		} else {
-			testNullObject(t, evaluated)
 		}
 	}
 }

@@ -32,7 +32,7 @@ class Hello {
     };
 
     fn print_self() {
-        print(self);
+        println(self);
     };
 
     fn __len__() {

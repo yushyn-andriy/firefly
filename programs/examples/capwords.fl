@@ -1,0 +1,5 @@
+import "string";
+
+s = "The quick brown fox jumped over the lazy dog.";
+println(s);
+println(string.capwords(s));

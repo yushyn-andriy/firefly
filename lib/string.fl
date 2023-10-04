@@ -6,3 +6,24 @@ digits = "0123456789";
 hexdigits = digits + "abcdef" + "ABCDEF";
 octdigits = "01234567";
 printable = digits + ascii_letters + whitespace;
+
+
+fn capwords(s) {
+    flag = false;
+    result = "";
+    for (i = 0; i < len(s); i = i + 1) {
+        ch = s[i];
+        if (ch != " " and flag == false) {
+            flag = true;
+            ch = ch.upper()
+        }
+        if (ch == " " and flag == true) {
+            flag = false;
+        }
+
+        result = result + ch;
+    }
+    return result;
+};
+capwords.__doc__ = "Split the argument into words using split, capitalize each
+word using capitalize, and join the capitalized words using";

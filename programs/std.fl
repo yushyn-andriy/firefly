@@ -2,7 +2,7 @@ import "string";
 import "math";
 import "phys";
 
-print("digits: ");
+println("digits: ");
 println(string.digits);
 println("PI:", math.PI);
 println("LIGHT_SPEED:", phys.LIGHT_SPEED);

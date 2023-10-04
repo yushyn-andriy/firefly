@@ -5,8 +5,10 @@ import "fmt"
 type BuiltinFunction func(env *Environment, args ...Object) Object
 
 type Builtin struct {
-	Fn  BuiltinFunction
-	Env *Environment
+	Fn   BuiltinFunction
+	Env  *Environment
+	Self Object
+	Doc  string
 }
 
 func (b *Builtin) Type() ObjectType { return BUILTIN_OBJ }

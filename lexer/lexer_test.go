@@ -19,6 +19,8 @@ func TestIdentifiersNextToken(t *testing.T) {
 	==
 	!=
 	.
+	or
+	and
 	`
 
 	tests := []struct {
@@ -36,6 +38,8 @@ func TestIdentifiersNextToken(t *testing.T) {
 		{token.EQ, "=="},
 		{token.NOT_EQ, "!="},
 		{token.DOT, "."},
+		{token.OR, "or"},
+		{token.AND, "and"},
 	}
 
 	lexer := New(input)

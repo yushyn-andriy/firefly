@@ -1,0 +1,19 @@
+s = "123456789";
+utskriftln(s)
+utskriftln(s.reverse());
+
+doc = help(s.reverse);
+utskriftln();
+utskriftln("Help:");
+utskriftln(doc);
+
+class A {
+    fn __init__() {
+        self.__doc__ = "instance of class A";
+    };
+};
+
+A.__doc__ = "this is a class A";
+
+utskriftln(help(A));
+utskriftln(help(A()));

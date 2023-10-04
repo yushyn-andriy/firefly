@@ -191,7 +191,6 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 
 	case *ast.StringLiteral:
 		return object.NewString(node.Value)
-		// return &object.String{Value: node.Value}
 
 	case *ast.ArrayLiteral:
 		elements := evalExpressions(node.Elements, env)
@@ -279,6 +278,8 @@ func evalIndexExpression(left, index object.Object) object.Object {
 	switch {
 	case left.Type() == object.ARRAY_OBJ && index.Type() == object.INTEGER_OBJ:
 		return evalArrayIndexExpression(left, index)
+	case left.Type() == object.STRING_OBJ && index.Type() == object.INTEGER_OBJ:
+		return evalStringIndexExpression(left, index)
 	case left.Type() == object.HASH_OBJ:
 		return evalHashIndexExpression(left, index)
 	default:
@@ -344,6 +345,19 @@ func evalArrayIndexExpression(array, index object.Object) object.Object {
 	return arrayObject.Elements[idx]
 }
 
+func evalStringIndexExpression(obj, index object.Object) object.Object {
+	stringObject := obj.(*object.String)
+	idx := index.(*object.Integer).Value
+
+	runes := []rune(stringObject.Value)
+
+	max := int64(len(runes)) - 1
+	if idx < 0 || idx > max {
+		return newError("index out of range: %d", idx)
+	}
+	return object.NewString(string(runes[idx]))
+}
+
 func runForLoop(loop object.Object, env *object.Environment) object.Object {
 	switch loop := loop.(type) {
 	case *object.ForLoop:
@@ -400,7 +414,17 @@ func applyFunction(fn object.Object, args []object.Object) object.Object {
 		}
 		return obj
 	case *object.Builtin:
-		res := fn.Fn(fn.Env, args...)
+		var res object.Object
+		// If fn.Self is not nil that means
+		// that this is a function realization to an object
+		// and we need pass it to a function call as a first argument
+		if fn.Self != nil {
+			extended := []object.Object{fn.Self}
+			extended = append(extended, args...)
+			res = fn.Fn(fn.Env, extended...)
+		} else {
+			res = fn.Fn(fn.Env, args...)
+		}
 		switch res := res.(type) {
 		case *object.Function:
 			if len(args) != len(res.Parameters) {
@@ -530,12 +554,16 @@ func evalInfixExpression(
 		return evalIntegerInfixExpression(operator, left, right)
 	case left.Type() == object.FLOAT_OBJ && right.Type() == object.FLOAT_OBJ:
 		return evalFloatInfixExpression(operator, left, right)
-	case operator == "==":
+	case operator == "==" && left.Type() == object.BOOLEAN_OBJ && right.Type() == object.BOOLEAN_OBJ:
 		return nativeBoolToBooleanObject(left == right)
-	case operator == "!=":
+	case operator == "!=" && left.Type() == object.BOOLEAN_OBJ && right.Type() == object.BOOLEAN_OBJ:
 		return nativeBoolToBooleanObject(left != right)
 	case left.Type() == object.STRING_OBJ && right.Type() == object.STRING_OBJ:
 		return evalStringInfixExpression(operator, left, right)
+	case operator == "and":
+		return nativeBoolToBooleanObject(object.TRUE == left && object.TRUE == right)
+	case operator == "or":
+		return nativeBoolToBooleanObject(object.TRUE == left || object.TRUE == right)
 	case left.Type() != right.Type():
 		return newError("type mismatch: %s %s %s",
 			left.Type(), operator, right.Type())
@@ -549,14 +577,20 @@ func evalStringInfixExpression(
 	operator string,
 	left, right object.Object,
 ) object.Object {
-	if operator != "+" {
+	leftVal := left.(*object.String).Value
+	rightVal := right.(*object.String).Value
+
+	switch operator {
+	case "+":
+		return object.NewString(leftVal + rightVal)
+	case "==":
+		return nativeBoolToBooleanObject(leftVal == rightVal)
+	case "!=":
+		return nativeBoolToBooleanObject(leftVal != rightVal)
+	default:
 		return newError("unknown operator: %s %s %s",
 			left.Type(), operator, right.Type())
 	}
-
-	leftVal := left.(*object.String).Value
-	rightVal := right.(*object.String).Value
-	return &object.String{Value: leftVal + rightVal}
 }
 
 func evalIntegerInfixExpression(
