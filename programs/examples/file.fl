@@ -1,15 +1,18 @@
 import "string";
 
-f = file("example.txt", "wr");
-f.open();
+f = file("example.txt", "w");
 
-for(i = 0; i<10; i = i+1) {
-    f.writeln("hello world");
-}
+f.open()
+f.write("hello world\n");
+f.write([1, 2, 3]);
+f.write("\n");
 f.close()
 
-f.open();
+f = file("example.txt", "r");
+f.open()
 
 
-println(f.read().upper());
+r = f.read()
+println(r);
 println(type(f));
+f.close()

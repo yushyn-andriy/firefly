@@ -5,6 +5,10 @@ import "fmt"
 type Null struct {
 }
 
+func NewNull() *Null {
+	return new(Null)
+}
+
 func (n *Null) Type() ObjectType { return NULL_OBJ }
 func (n *Null) Inspect() string  { return "null" }
 func (n *Null) SetAttr(key string, value Object) Object {

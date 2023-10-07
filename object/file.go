@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strings"
 )
 
 type File struct {
@@ -54,20 +55,6 @@ open file in read/write file mode
 		Doc: `write(self)
 `,
 	}
-	f.dict["fwrite"] = &Builtin{
-		Fn:   fileFormatWrite,
-		Env:  nil,
-		Self: f,
-		Doc: `fwrite(self)
-`,
-	}
-	f.dict["writeln"] = &Builtin{
-		Fn:   fileWriteLn,
-		Env:  nil,
-		Self: f,
-		Doc: `fwriteln(self)
-`,
-	}
 }
 
 func (f *File) Type() ObjectType { return FILE_OBJ }
@@ -82,51 +69,33 @@ func (f *File) GetAttr(key string) Object {
 	return &Error{Message: fmt.Sprintf("AttributeError: '%s' object has no attribute  %s", f.Inspect(), key)}
 }
 
-func (f *File) Close() {
-	if f.file != nil {
-		f.file.Close()
-	}
-}
-
-func (f *File) Open() {
-	file, err := os.OpenFile(f.path, os.O_APPEND|os.O_CREATE|os.O_RDWR, 0777)
-	if err != nil {
-		log.Printf("error while opening the file. %v", err)
-		return
-	}
-	f.file = file
-}
-
-func (f *File) Write(s string) {
-	if f.file != nil {
-		f.file.Write([]byte(s))
-	}
-}
-
-func (f *File) Fwrite(format, s string) {
-	if f.file != nil {
-		f.file.WriteString(fmt.Sprintf(format, s))
-	}
-}
-
-func (f *File) Read() string {
-	if f.file != nil {
-		info, _ := f.file.Stat()
-		buffer := make([]byte, info.Size())
-		f.file.Read(buffer)
-		return string(buffer)
-	}
-	return ""
-}
-
 func fileOpen(env *Environment, args ...Object) Object {
 	if len(args) != 1 {
 		return newError("wrong number of arguments. got=%d, want=1",
 			len(args))
 	}
 
-	self, _ := args[0].(*File)
-	self.Open()
+	self, ok := args[0].(*File)
+	if !ok {
+		return newError("%s", "cannot convert to type File")
+	}
+
+	var flag int = os.O_APPEND | os.O_CREATE
+	switch self.mode {
+	case "w":
+		flag = flag | os.O_WRONLY
+	case "r":
+		flag = flag | os.O_RDONLY
+	default:
+		return newError("undefined mode '%s'", self.mode)
+	}
+
+	file, err := os.OpenFile(self.path, flag, 0777)
+	if err != nil {
+		return newError("%s", err)
+	}
+	self.file = file
+
 	return self
 }
 
@@ -136,9 +105,21 @@ func fileClose(env *Environment, args ...Object) Object {
 			len(args))
 	}
 
-	self, _ := args[0].(*File)
-	self.Close()
-	return self
+	self, ok := args[0].(*File)
+	if !ok {
+		return newError("%s", "cannot convert to type File")
+	}
+
+	if self.file == nil {
+		return newError("%s", "cannot close not opened file")
+	}
+
+	err := self.file.Close()
+	if err != nil {
+		log.Printf("error while closing the file. %v", err)
+		return newError("%s", err)
+	}
+	return NewNull()
 }
 
 func fileRead(env *Environment, args ...Object) Object {
@@ -147,8 +128,27 @@ func fileRead(env *Environment, args ...Object) Object {
 			len(args))
 	}
 
-	self, _ := args[0].(*File)
-	return NewString(self.Read())
+	self, ok := args[0].(*File)
+	if !ok {
+		return newError("%s", "cannot convert to type File")
+	}
+
+	if self.file == nil {
+		return newError("%s", "cannot read from not opened file")
+	}
+
+	info, err := self.file.Stat()
+	if err != nil {
+		return newError("%s", err)
+	}
+
+	buffer := make([]byte, info.Size())
+	_, err = self.file.Read(buffer)
+	if err != nil {
+		return newError("%s", err)
+	}
+
+	return NewString(string(buffer))
 }
 
 func fileWrite(env *Environment, args ...Object) Object {
@@ -157,39 +157,26 @@ func fileWrite(env *Environment, args ...Object) Object {
 			len(args))
 	}
 
-	self, _ := args[0].(*File)
-	s, _ := args[1].(*String)
-
-	self.Fwrite("%s", s.Value)
-
-	return self
-}
-
-func fileWriteLn(env *Environment, args ...Object) Object {
-	if len(args) != 2 {
-		return newError("wrong number of arguments. got=%d, want=1",
-			len(args))
+	self, ok := args[0].(*File)
+	if !ok {
+		return newError("%s", "cannot convert to type File")
 	}
 
-	self, _ := args[0].(*File)
-	s, _ := args[1].(*String)
+	obj := args[1]
+	// s, ok := args[1].(*String)
+	// if !ok {
+	// 	return newError("%s", "cannot convert to type String")
+	// }
 
-	self.Fwrite("%s\n", s.Value)
-
-	return self
-}
-
-func fileFormatWrite(env *Environment, args ...Object) Object {
-	if len(args) != 3 {
-		return newError("wrong number of arguments. got=%d, want=1",
-			len(args))
+	if self.file == nil {
+		return newError("%s", "cannot write to not opened file")
 	}
 
-	self, _ := args[0].(*File)
-	format, _ := args[1].(*String)
-	s, _ := args[2].(*String)
+	n, err := self.file.WriteString(
+		fmt.Sprint(strings.ReplaceAll(obj.Inspect(), "\\n", "\n")))
+	if err != nil {
+		return newError("%s", err)
+	}
 
-	self.Fwrite(format.Value, s.Value)
-
-	return self
+	return NewInteger(int64(n))
 }

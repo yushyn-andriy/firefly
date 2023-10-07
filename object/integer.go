@@ -6,6 +6,10 @@ type Integer struct {
 	Value int64
 }
 
+func NewInteger(value int64) *Integer {
+	return &Integer{Value: value}
+}
+
 func (i *Integer) Type() ObjectType { return INTEGER_OBJ }
 func (i *Integer) Inspect() string  { return fmt.Sprintf("%d", i.Value) }
 func (i *Integer) HashKey() HashKey {
