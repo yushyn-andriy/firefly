@@ -41,6 +41,8 @@ func init() {
 	registerBuiltin("println", bprintln)
 	registerBuiltin("utskriftln", bprintln)
 
+	registerBuiltin("printf", bprintf)
+
 	registerBuiltin("eprint", beprint)
 	registerBuiltin("futskrift", beprintln)
 
@@ -349,6 +351,33 @@ func bfirst(env *object.Environment, args ...object.Object) object.Object {
 	arr := args[0].(*object.Array)
 	if len(arr.Elements) > 0 {
 		return arr.Elements[0]
+	}
+
+	return NULL
+}
+
+func bprintf(env *object.Environment, args ...object.Object) object.Object {
+	if len(args) < 1 {
+		return newError("wrong number of arguments. got=%d, minimum=1",
+			len(args))
+	}
+
+	if args[0].Type() != object.STRING_OBJ {
+		return newError("argument to 'first' must be %s, got %s",
+			object.STRING_OBJ, args[0].Type())
+	}
+
+	format := args[0].(*object.String).Value
+	arguments := []any{}
+	for _, arg := range args[1:] {
+		arguments = append(arguments, arg.Inspect())
+	}
+
+	format = strings.ReplaceAll(format, "\\n", "\n")
+
+	_, err := fmt.Fprintf(stdout, format, arguments...)
+	if err != nil {
+		return newError("%s", err)
 	}
 
 	return NULL

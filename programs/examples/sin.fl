@@ -1,0 +1,5 @@
+import "math";
+
+
+println(math.sin(2.0));
+println(math.cos(2.0));

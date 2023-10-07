@@ -1,0 +1,13 @@
+n = int(input(">>> "));
+
+
+fn sum(n) {
+    n = float(n);
+    s = n * (n + 1.0) / (2.0);
+    return s;
+}
+
+
+
+printf("sum(%s) = %s\n", n, sum(n));
+

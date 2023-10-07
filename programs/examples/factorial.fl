@@ -1,0 +1,14 @@
+import "math";
+
+
+
+println(math.factorial(1) == 1);
+println(math.factorial(2) == 2);
+println(math.factorial(3) == 6);
+println(math.factorial(4) == 24);
+println(math.factorial(5) == 120);
+println(math.factorial(6) == 720);
+println(math.factorial(7) == 5040);
+println(math.factorial(8) == 40320);
+println(math.factorial(9) == 362880);
+println(math.factorial(10) == 3628800);
