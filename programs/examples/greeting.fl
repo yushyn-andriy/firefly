@@ -1,8 +1,5 @@
-print("Name: ");
-name = input();
-print("Age: ");
-age = input();
+name = input("Name: ");
+age = input("Age: ");
 
-
-println("Hello " + name + "::");
-println("Your age is " + age + "::");
+println("Hello " + name);
+println("Your age is " + age);

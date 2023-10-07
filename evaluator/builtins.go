@@ -8,6 +8,7 @@ import (
 	"math"
 	"os"
 	"os/exec"
+	"strconv"
 	"strings"
 
 	"github.com/yushyn-andriy/firefly/ast"
@@ -56,6 +57,10 @@ func init() {
 	registerBuiltin("file", bNewFile)
 	registerBuiltin("input", bInput)
 	registerBuiltin("system", bSystem)
+
+	registerBuiltin("int", bInt)
+	registerBuiltin("float", bFloat)
+	registerBuiltin("string", bString)
 }
 
 func registerBuiltin(
@@ -66,6 +71,65 @@ func registerBuiltin(
 }
 
 var builtins = map[string]*object.Builtin{}
+
+func bFloat(env *object.Environment, args ...object.Object) object.Object {
+	if len(args) != 1 {
+		return newError("wrong number of arguments. got=%d, want=1",
+			len(args))
+	}
+
+	obj := args[0]
+	switch arg := obj.(type) {
+	case *object.String:
+		number, err := strconv.ParseFloat(arg.Value, 64)
+		if err != nil {
+			return newError("%s", err)
+		}
+		return object.NewFloat(number)
+	case *object.Integer:
+		return object.NewFloat(float64(arg.Value))
+	default:
+		return newError("invalid object type %T", arg)
+	}
+}
+
+func bString(env *object.Environment, args ...object.Object) object.Object {
+	if len(args) != 1 {
+		return newError("wrong number of arguments. got=%d, want=1",
+			len(args))
+	}
+
+	obj := args[0]
+	switch arg := obj.(type) {
+	case *object.Float:
+		return object.NewString(fmt.Sprintf("%f", arg.Value))
+	case *object.Integer:
+		return object.NewString(fmt.Sprintf("%d", arg.Value))
+	default:
+		return newError("invalid object type %T", arg)
+	}
+}
+
+func bInt(env *object.Environment, args ...object.Object) object.Object {
+	if len(args) != 1 {
+		return newError("wrong number of arguments. got=%d, want=1",
+			len(args))
+	}
+
+	obj := args[0]
+	switch arg := obj.(type) {
+	case *object.String:
+		number, err := strconv.ParseInt(arg.Value, 10, 64)
+		if err != nil {
+			return newError("%s", err)
+		}
+		return object.NewInteger(number)
+	case *object.Float:
+		return object.NewInteger(int64(arg.Value))
+	default:
+		return newError("invalid object type %T", arg)
+	}
+}
 
 func bSystem(env *object.Environment, args ...object.Object) object.Object {
 	if len(args) < 1 {
@@ -93,9 +157,13 @@ func bSystem(env *object.Environment, args ...object.Object) object.Object {
 }
 
 func bInput(env *object.Environment, args ...object.Object) object.Object {
-	if len(args) != 0 {
+	if len(args) > 1 {
 		return newError("wrong number of arguments. got=%d, want=0",
 			len(args))
+	}
+
+	if len(args) == 1 {
+		fmt.Fprint(stdout, args[0].Inspect())
 	}
 
 	reader := bufio.NewReader(os.Stdin)

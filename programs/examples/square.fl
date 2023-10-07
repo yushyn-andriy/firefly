@@ -1,0 +1,8 @@
+width = int(input("width: "));
+height = int(input("height: "));
+
+
+print("square: ");
+println(width * height);
+
+println(string(float(int(32.32))) + "!!!");
