@@ -163,11 +163,6 @@ func fileWrite(env *Environment, args ...Object) Object {
 	}
 
 	obj := args[1]
-	// s, ok := args[1].(*String)
-	// if !ok {
-	// 	return newError("%s", "cannot convert to type String")
-	// }
-
 	if self.file == nil {
 		return newError("%s", "cannot write to not opened file")
 	}

@@ -1,0 +1,8 @@
+print("Name: ");
+name = input();
+print("Age: ");
+age = input();
+
+
+println("Hello " + name + "::");
+println("Your age is " + age + "::");

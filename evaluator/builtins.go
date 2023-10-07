@@ -1,12 +1,14 @@
 package evaluator
 
 import (
+	"bufio"
 	"bytes"
 	"fmt"
 	"io"
 	"math"
 	"os"
 	"os/exec"
+	"strings"
 
 	"github.com/yushyn-andriy/firefly/ast"
 	"github.com/yushyn-andriy/firefly/object"
@@ -52,6 +54,7 @@ func init() {
 
 	registerBuiltin("pow", bPow)
 	registerBuiltin("file", bNewFile)
+	registerBuiltin("input", bInput)
 	registerBuiltin("system", bSystem)
 }
 
@@ -87,6 +90,19 @@ func bSystem(env *object.Environment, args ...object.Object) object.Object {
 	}
 
 	return object.NewString(string(out))
+}
+
+func bInput(env *object.Environment, args ...object.Object) object.Object {
+	if len(args) != 0 {
+		return newError("wrong number of arguments. got=%d, want=0",
+			len(args))
+	}
+
+	reader := bufio.NewReader(os.Stdin)
+	line, _ := reader.ReadString('\n')
+	line = strings.ReplaceAll(line, "\n", "")
+
+	return object.NewString(string(line))
 }
 
 func bNewFile(env *object.Environment, args ...object.Object) object.Object {
