@@ -18,6 +18,7 @@ const (
 	TYPE_OBJ         = "TYPE"
 	FORLOOP_OBJ      = "FORLOOP"
 	NULL_OBJ         = "NULL"
+	FILE_OBJ         = "FILE_OBJ"
 )
 
 // magic methods

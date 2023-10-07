@@ -1,0 +1,16 @@
+println("Usage: thingy [OPTIONS]
+     -h                        Display this usage message
+     -H hostname               Hostname to connect to")
+println(3 * "un" + "ium")
+
+word = "Python"
+println(word[0])
+println(word[1])
+println(word[2])
+println(word[3])
+println(word[4])
+println(word[5])
+
+
+s = "supercalifragilisticexpialidocious"
+println("len(s):", len(s));

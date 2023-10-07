@@ -5,6 +5,7 @@ import (
 	"io"
 	"log"
 	"os"
+	"strings"
 
 	"github.com/yushyn-andriy/firefly/ast"
 	"github.com/yushyn-andriy/firefly/lexer"
@@ -184,6 +185,7 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 			return function
 		}
 		args := evalExpressions(node.Arguments, env)
+
 		if len(args) == 1 && isError(args[0]) {
 			return args[0]
 		}
@@ -197,7 +199,7 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 		if len(elements) == 1 && isError(elements[0]) {
 			return elements[0]
 		}
-		return &object.Array{Elements: elements}
+		return object.NewArray(elements)
 
 	case *ast.IndexExpression:
 		left := Eval(node.Left, env)
@@ -552,21 +554,34 @@ func evalInfixExpression(
 	switch {
 	case left.Type() == object.INTEGER_OBJ && right.Type() == object.INTEGER_OBJ:
 		return evalIntegerInfixExpression(operator, left, right)
+
 	case left.Type() == object.FLOAT_OBJ && right.Type() == object.FLOAT_OBJ:
 		return evalFloatInfixExpression(operator, left, right)
+
+	case left.Type() == object.INTEGER_OBJ && right.Type() == object.STRING_OBJ:
+		return evalStringIntegerInfix(operator, left, right)
+	case right.Type() == object.INTEGER_OBJ && left.Type() == object.STRING_OBJ:
+		return evalStringIntegerInfix(operator, right, left)
+
 	case operator == "==" && left.Type() == object.BOOLEAN_OBJ && right.Type() == object.BOOLEAN_OBJ:
 		return nativeBoolToBooleanObject(left == right)
+
 	case operator == "!=" && left.Type() == object.BOOLEAN_OBJ && right.Type() == object.BOOLEAN_OBJ:
 		return nativeBoolToBooleanObject(left != right)
+
 	case left.Type() == object.STRING_OBJ && right.Type() == object.STRING_OBJ:
 		return evalStringInfixExpression(operator, left, right)
+
 	case operator == "and":
 		return nativeBoolToBooleanObject(object.TRUE == left && object.TRUE == right)
+
 	case operator == "or":
 		return nativeBoolToBooleanObject(object.TRUE == left || object.TRUE == right)
+
 	case left.Type() != right.Type():
 		return newError("type mismatch: %s %s %s",
 			left.Type(), operator, right.Type())
+
 	default:
 		return newError("unknown operator: %s %s %s",
 			left.Type(), operator, right.Type())
@@ -593,6 +608,21 @@ func evalStringInfixExpression(
 	}
 }
 
+func evalStringIntegerInfix(
+	operator string,
+	left, right object.Object,
+) object.Object {
+	leftVal := left.(*object.Integer).Value
+	rightVal := right.(*object.String).Value
+
+	switch operator {
+	case "*":
+		return object.NewString(strings.Repeat(rightVal, int(leftVal)))
+	default:
+		return newError("unknown operator: %s %s %s",
+			left.Type(), operator, right.Type())
+	}
+}
 func evalIntegerInfixExpression(
 	operator string,
 	left, right object.Object,

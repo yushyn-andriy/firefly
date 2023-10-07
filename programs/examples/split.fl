@@ -1,0 +1,7 @@
+
+
+
+s = "It is a good idea. But__you__have__to__understand";
+println(s);
+println(s.split());
+println(s.split("__"));

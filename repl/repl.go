@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"log"
 
 	"github.com/yushyn-andriy/firefly/compiler"
@@ -23,7 +22,7 @@ func Start(in io.Reader, out io.Writer, conf config.Config) {
 	if conf.Mode == config.INTERACTIVE {
 		scanner := bufio.NewScanner(in)
 		for {
-			fmt.Printf(PROMPT)
+			fmt.Print(PROMPT)
 			scanned := scanner.Scan()
 			if !scanned {
 				return
@@ -68,7 +67,7 @@ func Start(in io.Reader, out io.Writer, conf config.Config) {
 			}
 		}
 	} else {
-		input, err := ioutil.ReadAll(in)
+		input, err := io.ReadAll(in)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -79,7 +78,12 @@ func Start(in io.Reader, out io.Writer, conf config.Config) {
 		if len(p.Errors()) != 0 {
 			printParseErrors(out, p.Errors())
 		}
-		evaluator.Eval(program, env)
+
+		obj := evaluator.Eval(program, env)
+		switch result := obj.(type) {
+		case *object.Error:
+			log.Fatal(result.Message)
+		}
 	}
 }
 

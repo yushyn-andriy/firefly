@@ -38,6 +38,15 @@ reverse the string and return new string object
 upper case the string and return new string object 
 `,
 	}
+	s.dict["split"] = &Builtin{
+		Fn:   strSplit,
+		Env:  nil,
+		Self: s,
+		Doc: `split(self)
+split the string by separator and return new array of string objects.
+The default separator is a whitespace.  
+`,
+	}
 }
 
 func (s *String) Type() ObjectType { return STRING_OBJ }
@@ -89,8 +98,30 @@ func strUpper(env *Environment, args ...Object) Object {
 			len(args))
 	}
 
-	self, _ := args[0].(*String)
-	r := NewString(strings.ToUpper(self.Value))
+	s := args[0].(*String)
+	r := NewString(strings.ToUpper(s.Value))
 
 	return r
+}
+
+func strSplit(env *Environment, args ...Object) Object {
+	var sep = " "
+	if len(args) < 1 || len(args) > 2 {
+		return newError("wrong number of arguments. got=%d, want=1",
+			len(args))
+	}
+
+	if len(args) == 2 {
+		sep = args[1].(*String).Value
+	}
+
+	s := args[0].(*String).Value
+	array := strings.Split(s, sep)
+
+	elements := make([]Object, len(array))
+	for i, element := range array {
+		elements[i] = NewString(element)
+	}
+
+	return NewArray(elements)
 }

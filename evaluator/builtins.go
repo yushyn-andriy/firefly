@@ -50,7 +50,7 @@ func init() {
 	registerBuiltin("help", bhelp)
 
 	registerBuiltin("pow", bPow)
-
+	registerBuiltin("file", bNewFile)
 }
 
 func registerBuiltin(
@@ -61,6 +61,31 @@ func registerBuiltin(
 }
 
 var builtins = map[string]*object.Builtin{}
+
+func bNewFile(env *object.Environment, args ...object.Object) object.Object {
+	if len(args) != 2 {
+		return newError("wrong number of arguments. got=%d, want=1",
+			len(args))
+	}
+
+	var path, mode string
+	switch arg := args[0].(type) {
+	case *object.String:
+		path = arg.Value
+	default:
+		return newError("argument to `nclass` not supported, got %s",
+			args[0].Type())
+	}
+	switch arg := args[1].(type) {
+	case *object.String:
+		mode = arg.Value
+	default:
+		return newError("argument to `nclass` not supported, got %s",
+			args[0].Type())
+	}
+
+	return object.NewFile(path, mode)
+}
 
 func bNewClass(env *object.Environment, args ...object.Object) object.Object {
 	if len(args) != 1 {
@@ -177,11 +202,11 @@ func bgetattr(env *object.Environment, args ...object.Object) object.Object {
 }
 
 func bbuiltins(env *object.Environment, args ...object.Object) object.Object {
-	arr := object.Array{}
+	arr := object.NewArray(nil)
 	for k, _ := range builtins {
 		arr.Elements = append(arr.Elements, object.NewString(k))
 	}
-	return &arr
+	return arr
 }
 
 func btype(env *object.Environment, args ...object.Object) object.Object {

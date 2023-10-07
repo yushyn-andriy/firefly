@@ -1,0 +1,15 @@
+import "string";
+
+f = file("example.txt", "wr");
+f.open();
+
+for(i = 0; i<10; i = i+1) {
+    f.writeln("hello world");
+}
+f.close()
+
+f.open();
+
+
+println(f.read().upper());
+println(type(f));

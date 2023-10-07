@@ -11,6 +11,18 @@ type Array struct {
 	Elements []Object
 }
 
+func NewArray(elements []Object) *Array {
+	s := new(Array)
+	s.Elements = elements
+	s.dict = make(map[string]Object)
+
+	s.initialize()
+
+	return s
+}
+
+func (ao *Array) initialize() {}
+
 func (ao *Array) Type() ObjectType { return ARRAY_OBJ }
 func (ao *Array) Inspect() string {
 	var out bytes.Buffer

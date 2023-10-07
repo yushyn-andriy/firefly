@@ -1,0 +1,7 @@
+import "string";
+
+f = file("./programs/examples/capwords.fl", "wr");
+f.open();
+
+println(f.read()); #.upper());
+f.close()
