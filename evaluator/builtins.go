@@ -6,6 +6,7 @@ import (
 	"io"
 	"math"
 	"os"
+	"os/exec"
 
 	"github.com/yushyn-andriy/firefly/ast"
 	"github.com/yushyn-andriy/firefly/object"
@@ -51,6 +52,7 @@ func init() {
 
 	registerBuiltin("pow", bPow)
 	registerBuiltin("file", bNewFile)
+	registerBuiltin("system", bSystem)
 }
 
 func registerBuiltin(
@@ -62,9 +64,34 @@ func registerBuiltin(
 
 var builtins = map[string]*object.Builtin{}
 
+func bSystem(env *object.Environment, args ...object.Object) object.Object {
+	if len(args) < 1 {
+		return newError("wrong number of arguments. got=%d, minimum=1",
+			len(args))
+	}
+
+	name, _ := args[0].(*object.String)
+	args = args[1:]
+
+	strArguments := []string{}
+	for _, arg := range args {
+		s := arg.(*object.String).Value
+		strArguments = append(strArguments, s)
+	}
+
+	command := exec.Command(name.Value, strArguments...)
+
+	out, err := command.Output()
+	if err != nil {
+		return newError("could not run command: %s", err)
+	}
+
+	return object.NewString(string(out))
+}
+
 func bNewFile(env *object.Environment, args ...object.Object) object.Object {
 	if len(args) != 2 {
-		return newError("wrong number of arguments. got=%d, want=1",
+		return newError("wrong number of arguments. got=%d, want=2",
 			len(args))
 	}
 

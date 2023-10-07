@@ -3,16 +3,8 @@ import "string";
 f = file("example.txt", "w");
 
 f.open()
-f.write("hello world\n");
-f.write([1, 2, 3]);
-f.write("\n");
-f.close()
-
-f = file("example.txt", "r");
-f.open()
-
-
-r = f.read()
-println(r);
-println(type(f));
+for(i = 0; i < 1000000; i = i+1) {
+    f.write(i);
+    f.write("\n");
+}
 f.close()
